@@ -1,0 +1,3 @@
+jwt:
+  jwtSecret: clientDevSecret
+  jwtExpiration: 86400

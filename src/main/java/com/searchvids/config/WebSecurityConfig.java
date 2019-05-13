@@ -64,6 +64,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf()
                 .disable()
+
+                .authorizeRequests()
+                .antMatchers("/api/auth/**").permitAll()
+
+                .and()
+                .authorizeRequests()
+                .antMatchers("/h2-console/*").permitAll()
+
+                .and()
                 .authorizeRequests()
                 .anyRequest().authenticated()
 
@@ -71,6 +80,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler)
                 .and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
+        http.headers().frameOptions().disable();
 
         http.addFilterBefore(tokenFilter(), UsernamePasswordAuthenticationFilter.class);
     }
