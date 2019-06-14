@@ -1,5 +1,6 @@
 package com.searchvids.service;
 
+import com.searchvids.exception.ResourceNotFoundException;
 import com.searchvids.model.RoleName;
 import com.searchvids.model.User;
 import com.searchvids.model.payload.JwtResponse;
@@ -46,17 +47,20 @@ public class AuthServiceImplementation implements AuthService {
         String jwt = provider.generateJwtToken(authentication);
         UserDetails details = (UserDetails) authentication.getPrincipal();
 
-        return new JwtResponse(jwt, details.getUsername(), details.getAuthorities());
+        User user = userRepository.findByUsername(details.getUsername()).orElseThrow(() ->
+                new ResourceNotFoundException("User", "username", details.getUsername()));
+
+        return new JwtResponse(user.getId(), jwt, user.getUsername(), details.getAuthorities());
     }
 
     @Override
     public ResponseMessage registration(SignUpForm signUpForm) {
         if (userRepository.existsByUsername(signUpForm.getUsername())) {
-            return new ResponseMessage("Fail -> Username already taken", HttpStatus.BAD_REQUEST);
+            return new ResponseMessage("Fail -> Username already taken", HttpStatus.BAD_REQUEST.getReasonPhrase());
         }
 
         if (userRepository.existsByEmail(signUpForm.getEmail())) {
-            return new ResponseMessage("Fail -> Email already taken", HttpStatus.BAD_REQUEST);
+            return new ResponseMessage("Fail -> Email already taken", HttpStatus.BAD_REQUEST.getReasonPhrase());
         }
 
         User user = new User();
@@ -68,6 +72,6 @@ public class AuthServiceImplementation implements AuthService {
 
         userRepository.save(user);
 
-        return new ResponseMessage("User registered successfully!", HttpStatus.OK);
+        return new ResponseMessage("User registered successfully! Please log in", HttpStatus.OK.getReasonPhrase());
     }
 }

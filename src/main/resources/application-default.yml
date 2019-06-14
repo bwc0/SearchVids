@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    platform: h2
+  jpa:
+    show-sql: false
+
+jwt:
+  jwtSecret: clientDevSecret
+  jwtExpiration: 86400

@@ -27,13 +27,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class AuthControllerTest {
 
-    private static final String FIRSTNAME = "Test";
-    private static final String LASTNAME = "User";
+    private static final Long ID = 1L;
     private static final String EMAIL = "testUser@test.com";
     private static final String USERNAME = "testU94";
     private static final String PASSWORD = "testpassword";
@@ -69,13 +69,15 @@ class AuthControllerTest {
     @DisplayName("POST /signin endpoint test should return 200 and JWTResponse")
     void authenticateUser_ShouldReturn_200_AndJWTResponse() throws Exception {
         given(authService.authentication(any(LoginForm.class)))
-                .willReturn(new JwtResponse("token", USERNAME, authorities));
+                .willReturn(new JwtResponse(1L, "token", USERNAME, authorities));
 
         mockMvc.perform(post(AUTH_API + "/signin")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(loginForm)))
                 .andExpect(status().isOk())
+                .andDo(print())
                 .andExpect(jsonPath("$.token", equalTo("token")))
+                .andExpect(jsonPath("$.id", equalTo(ID.intValue())))
                 .andExpect(jsonPath("$.username", equalTo(USERNAME)))
                 .andExpect(jsonPath("$.type", equalTo("Bearer")))
                 .andExpect(jsonPath("$.authorities", hasSize(0)));
@@ -85,7 +87,7 @@ class AuthControllerTest {
     @DisplayName("POST /signup endpoint test should return 200 and JWTResponse")
     void registerUser_ShouldReturn200_AndJwtResponse() throws Exception {
         given(authService.registration(any(SignUpForm.class)))
-                .willReturn(new ResponseMessage("User registered successfully!", HttpStatus.OK));
+                .willReturn(new ResponseMessage("User registered successfully!", HttpStatus.OK.getReasonPhrase()));
 
         mockMvc.perform(post(AUTH_API + "/signup")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -99,14 +101,14 @@ class AuthControllerTest {
     @DisplayName("POST /signup endpoint test should return 400 and JWTResponse")
     void registerUser_UsernameExists_ShouldReturn400_AndJwtResponse() throws Exception {
         given(authService.registration(any(SignUpForm.class)))
-                .willReturn(new ResponseMessage("Fail -> Username already taken", HttpStatus.BAD_REQUEST));
+                .willReturn(new ResponseMessage("Fail -> Username already taken", HttpStatus.BAD_REQUEST.getReasonPhrase()));
 
         mockMvc.perform(post(AUTH_API + "/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(signUpForm)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", equalTo("Fail -> Username already taken")))
-                .andExpect(jsonPath("$.status", equalTo("BAD_REQUEST")));
+                .andExpect(jsonPath("$.status", equalTo("Bad Request")));
 
     }
 
@@ -114,13 +116,13 @@ class AuthControllerTest {
     @DisplayName("POST /signup endpoint test should return 400 and JWTResponse")
     void registerUser_EmailExists_ShouldReturn400_AndJwtResponse() throws Exception {
         given(authService.registration(any(SignUpForm.class)))
-                .willReturn(new ResponseMessage("Fail -> Email already taken", HttpStatus.BAD_REQUEST));
+                .willReturn(new ResponseMessage("Fail -> Email already taken", HttpStatus.BAD_REQUEST.getReasonPhrase()));
 
         mockMvc.perform(post(AUTH_API + "/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(signUpForm)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message", equalTo("Fail -> Email already taken")))
-                .andExpect(jsonPath("$.status", equalTo("BAD_REQUEST")));
+                .andExpect(jsonPath("$.status", equalTo("Bad Request")));
     }
 }

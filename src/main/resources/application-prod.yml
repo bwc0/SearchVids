@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/searchvidsprod?useSSL=false&serverTimezone=UTC
+    username: root
+    password: rootpassword
+    platform: mysql
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    database: mysql
+    show-sql: false
+
+jwt:
+  jwtSecret: clientDevSecret
+  jwtExpiration: 86400

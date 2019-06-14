@@ -21,6 +21,16 @@ public class Video {
     public Video() {
     }
 
+    public Video(String videoId, String title, String publishedAt, String description,
+                 String thumbnail, String channelTitle) {
+        this.videoId = videoId;
+        this.title = title;
+        this.publishedAt = publishedAt;
+        this.description = description;
+        this.thumbnail = thumbnail;
+        this.channelTitle = channelTitle;
+    }
+
     public Long getId() {
         return id;
     }

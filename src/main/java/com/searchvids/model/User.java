@@ -35,7 +35,6 @@ public class User {
 
     @NotBlank
     @Size(min = 6, max = 100)
-    @JsonIgnore
     private String password;
 
     @ManyToMany(fetch = FetchType.LAZY)
@@ -51,6 +50,15 @@ public class User {
     private Set<Video> videos = new HashSet<>();
 
     public User() {
+    }
+
+    public User(String username, String email,
+                String password, Set<Role> roles, Set<Video> videos) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.roles = roles;
+        this.videos = videos;
     }
 
     public Long getId() {

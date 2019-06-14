@@ -91,8 +91,8 @@ class AuthServiceImplementationTest {
 
         ResponseMessage message = service.registration(signUpForm);
 
-        assertEquals("User registered successfully!", message.getMessage());
-        assertEquals(HttpStatus.OK, message.getStatus());
+        assertEquals("User registered successfully! Please log in", message.getMessage());
+        assertEquals(HttpStatus.OK.getReasonPhrase(), message.getStatus());
     }
 
 
@@ -107,7 +107,7 @@ class AuthServiceImplementationTest {
         ResponseMessage message =  service.registration(signUpForm);
 
         assertEquals("Fail -> Username already taken", message.getMessage());
-        assertEquals(HttpStatus.BAD_REQUEST, message.getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), message.getStatus());
     }
 
     @Test
@@ -121,6 +121,6 @@ class AuthServiceImplementationTest {
         ResponseMessage message = service.registration(signUpForm);
 
         assertEquals("Fail -> Email already taken", message.getMessage());
-        assertEquals(HttpStatus.BAD_REQUEST, message.getStatus());
+        assertEquals(HttpStatus.BAD_REQUEST.getReasonPhrase(), message.getStatus());
     }
 }

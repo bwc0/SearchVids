@@ -1,6 +1,7 @@
 package com.searchvids.controller.ExceptionHandler;
 
 import com.searchvids.exception.ResourceNotFoundException;
+import com.searchvids.model.payload.ResponseMessage;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +14,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler({ResourceNotFoundException.class})
-    public ResponseEntity<Object> handleNotFoundException(Exception exception, WebRequest request) {
-        return new ResponseEntity<>(exception.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<?> handleNotFoundException(Exception exception) {
+        return new ResponseEntity<>(new ResponseMessage(exception.getMessage(), HttpStatus.NOT_FOUND.getReasonPhrase()),
+                new HttpHeaders(), HttpStatus.NOT_FOUND);
     }
 }

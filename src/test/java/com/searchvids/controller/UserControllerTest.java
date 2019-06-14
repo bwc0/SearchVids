@@ -1,15 +1,18 @@
 package com.searchvids.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.searchvids.controller.ExceptionHandler.RestExceptionHandler;
 import com.searchvids.exception.ResourceNotFoundException;
 import com.searchvids.model.User;
 import com.searchvids.model.Video;
+import com.searchvids.model.payload.ResponseMessage;
 import com.searchvids.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -32,6 +35,9 @@ class UserControllerTest {
     private User user;
     private Video video;
     private UserController controller;
+    private ResponseMessage message1;
+    private ResponseMessage message2;
+    private ResponseMessage message3;
 
     private MockMvc mockMvc;
 
@@ -60,66 +66,78 @@ class UserControllerTest {
 
         user.getVideos().add(video);
 
+        message1 = new ResponseMessage("User found with id: " + user.getId(), HttpStatus.OK.getReasonPhrase(), user);
+        message2 = new ResponseMessage("User updated with id: " + user.getId(), HttpStatus.OK.getReasonPhrase(), user);
+        message3 = new ResponseMessage("Username must be unique", HttpStatus.BAD_REQUEST.getReasonPhrase());
+
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
+                .setControllerAdvice(new RestExceptionHandler())
                 .build();
     }
 
     @Test
     @DisplayName("Get /{id} endpoint status should be 200 and return User")
     void getUserById_ShouldReturnUserAnd200Test() throws Exception {
-        given(service.findUserById(anyLong())).willReturn(user);
+        given(service.findUserById(anyLong())).willReturn(message1);
 
         mockMvc.perform(get("/users/1")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(jsonPath("$.username", equalTo(user.getUsername())))
-                .andExpect(jsonPath("$.email", equalTo(user.getEmail())))
-                .andExpect(jsonPath("$.videos", hasSize(1)));
+                .andExpect(jsonPath("$.message", equalTo("User found with id: " + user.getId())))
+                .andExpect(jsonPath("$.status", equalTo(HttpStatus.OK.getReasonPhrase())))
+                .andExpect(jsonPath("$.user.username", equalTo(user.getUsername())))
+                .andExpect(jsonPath("$.user.email", equalTo(user.getEmail())))
+                .andExpect(jsonPath("$.user.videos", hasSize(1)));
     }
 
     @Test
     @DisplayName("GET /users/{id} error message and 404")
-    void getTeamId_TeamDoesNotExist_ShouldReturn404() throws Exception {
+    void getUserId_UserDoesNotExist_ShouldReturn404() throws Exception {
         given(service.findUserById(anyLong())).willThrow(ResourceNotFoundException.class);
 
         mockMvc.perform(get("/users/1"))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isNotFound())
+                .andDo(print());
     }
 
     @Test
-    @DisplayName("Get /user/{username} endpoint status should be 200 and return User")
-    void getUserByUsername_ShouldReturnUserAnd200Test() throws Exception {
-        given(service.findUserByUsername(anyString())).willReturn(user);
-
-        mockMvc.perform(get("/users/user/testU94")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andDo(print())
-                .andExpect(jsonPath("$.username", equalTo(user.getUsername())))
-                .andExpect(jsonPath("$.email", equalTo(user.getEmail())))
-                .andExpect(jsonPath("$.videos", hasSize(1)));
-    }
-
-    @Test
-    @DisplayName("GET /user/{username} error message and 404")
-    void getTeamUsername_TeamDoesNotExist_ShouldReturn404() throws Exception {
-        given(service.findUserByUsername(anyString())).willThrow(ResourceNotFoundException.class);
-
-        mockMvc.perform(get("/users/user/testU94"))
-                .andExpect(status().isNotFound());
-    }
-
-    @Test
-    @DisplayName("PUT /{id} endpoint status should 200 and return User")
+    @DisplayName("PATCH /{id} endpoint status should 200 and return User")
     void putUpdateUser_ShouldReturnUrlAnd200Test() throws Exception {
-        given(service.updateUser(anyLong(), any())).willReturn(user);
+        given(service.updateUser(anyLong(), any())).willReturn(message2);
 
-        mockMvc.perform(put("/users/1")
+        mockMvc.perform(patch("/users/1")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(user)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.username", equalTo(user.getUsername())))
-                .andExpect(jsonPath("$.email", equalTo(user.getEmail())))
-                .andExpect(jsonPath("$.videos", hasSize(1)));
+                .andExpect(jsonPath("$.message", equalTo("User updated with id: 1")))
+                .andExpect(jsonPath("$.status", equalTo(HttpStatus.OK.getReasonPhrase())))
+                .andExpect(jsonPath("$.user.username", equalTo(user.getUsername())))
+                .andExpect(jsonPath("$.user.email", equalTo(user.getEmail())))
+                .andExpect(jsonPath("$.user.videos", hasSize(1)));
+    }
+
+    @Test
+    @DisplayName("PATCH /{id} endpoint username Exists should return 400")
+    void putUpdateUser_UsernameExistsShouldReturn400Test() throws Exception {
+        given(service.updateUser(anyLong(), any())).willReturn(message3);
+
+        mockMvc.perform(patch("/users/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(user)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message", equalTo("Username must be unique")))
+                .andExpect(jsonPath("$.status", equalTo(HttpStatus.BAD_REQUEST.getReasonPhrase())));
+    }
+
+    @Test
+    @DisplayName("PATCH /{id} endpoint error message and 404")
+    void putUpdateUser_UserDoesNotExist_ShouldReturn404() throws Exception {
+        given(service.updateUser(anyLong(), any())).willThrow(ResourceNotFoundException.class);
+
+        mockMvc.perform(patch("/users/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString(user)))
+                .andExpect(status().isNotFound());
     }
 
     @Test

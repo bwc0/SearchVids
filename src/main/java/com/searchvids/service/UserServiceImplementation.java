@@ -3,8 +3,11 @@ package com.searchvids.service;
 import com.searchvids.exception.ResourceNotFoundException;
 import com.searchvids.model.User;
 import com.searchvids.model.Video;
+import com.searchvids.model.payload.ResponseMessage;
 import com.searchvids.repository.UserRepository;
 import com.searchvids.repository.VideoRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,28 +17,44 @@ public class UserServiceImplementation implements UserService {
 
     private UserRepository userRepository;
     private VideoRepository videoRepository;
+    private PasswordEncoder passwordEncoder;
 
-    public UserServiceImplementation(UserRepository userRepository, VideoRepository videoRepository) {
+    public UserServiceImplementation(UserRepository userRepository, VideoRepository videoRepository,
+                                     PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.videoRepository = videoRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public User findUserByUsername(String username) {
-        return userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+    public ResponseMessage findUserById(Long id) {
+        User user = userRepository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException("User", "id", id));
+
+        return new ResponseMessage("User found with id: " + id, HttpStatus.OK.getReasonPhrase(), user);
     }
 
     @Override
-    public User findUserById(Long id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
-    }
+    public ResponseMessage updateUser(Long id, User user) {
 
-    @Override
-    public User updateUser(Long id, User user) {
-        user.setId(id);
-        return userRepository.save(user);
+        if (userRepository.existsByUsername(user.getUsername())) {
+            return new ResponseMessage("Username must be unique", HttpStatus.BAD_REQUEST.getReasonPhrase());
+        }
+
+       User updatedUser = userRepository.findById(id).map(data -> {
+
+           if (user.getUsername() != null) {
+               data.setUsername(user.getUsername());
+           }
+
+            if (user.getPassword() != null) {
+                data.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+
+            return userRepository.save(data);
+        }).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+
+        return new ResponseMessage("User updated with id: " + id, HttpStatus.OK.getReasonPhrase(), updatedUser);
     }
 
     @Override
