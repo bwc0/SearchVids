@@ -5,6 +5,7 @@ import com.searchvids.model.Video;
 import com.searchvids.model.payload.ResponseMessage;
 import com.searchvids.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -20,14 +21,14 @@ public class UserController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseMessage getUserById(@PathVariable Long id) {
-        return service.findUserById(id);
+    public ResponseEntity<ResponseMessage> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(service.findUserById(id));
     }
 
     @PatchMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseMessage patchUpdateUser(@PathVariable Long id, @RequestBody User user) {
-        return service.updateUser(id, user);
+    public ResponseEntity<ResponseMessage> patchUpdateUser(@PathVariable Long id, @RequestBody User user) {
+        return ResponseEntity.ok(service.updateUser(id, user));
     }
 
 
