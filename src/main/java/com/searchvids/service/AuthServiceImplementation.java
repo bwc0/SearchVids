@@ -56,11 +56,11 @@ public class AuthServiceImplementation implements AuthService {
     @Override
     public ResponseMessage registration(SignUpForm signUpForm) {
         if (userRepository.existsByUsername(signUpForm.getUsername())) {
-            return new ResponseMessage("Fail -> Username already taken", HttpStatus.BAD_REQUEST.getReasonPhrase());
+            return new ResponseMessage("Username already taken", HttpStatus.BAD_REQUEST.getReasonPhrase());
         }
 
         if (userRepository.existsByEmail(signUpForm.getEmail())) {
-            return new ResponseMessage("Fail -> Email already taken", HttpStatus.BAD_REQUEST.getReasonPhrase());
+            return new ResponseMessage("Email already taken", HttpStatus.BAD_REQUEST.getReasonPhrase());
         }
 
         User user = new User();
