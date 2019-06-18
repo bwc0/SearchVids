@@ -28,10 +28,7 @@ public class UserServiceImplementation implements UserService {
 
     @Override
     public ResponseMessage findUserById(Long id) {
-        User user = userRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("User", "id", id));
-
-        return new ResponseMessage("User found with id: " + id, HttpStatus.OK.getReasonPhrase(), user);
+        return new ResponseMessage("User found with id: " + id, HttpStatus.OK.getReasonPhrase(), getUser(id));
     }
 
     @Override
@@ -59,8 +56,7 @@ public class UserServiceImplementation implements UserService {
 
     @Override
     public void addVideoToUserVideoList(Long id, Video video) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        User user = getUser(id);
 
         Optional<Video> videoOptional = videoRepository.findByVideoId(video.getVideoId());
 
@@ -75,7 +71,21 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
+    public void removeVideoFromUserVideoList(Long id, String videoId) {
+        User user = getUser(id);
+
+        user.getVideos().remove(videoRepository.findByVideoId(videoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Video", "videoid", videoId)));
+
+        userRepository.save(user);
+    }
+
+    @Override
     public void deleteUserById(Long id) {
         userRepository.deleteById(id);
+    }
+
+    private User getUser(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 }

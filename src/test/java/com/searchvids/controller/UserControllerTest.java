@@ -62,7 +62,7 @@ class UserControllerTest {
         video.setPublishedAt("Timed Published");
         video.setThumbnail("Thumbnail of video");
         video.setTitle("Video Title");
-        video.setVideoId("video id");
+        video.setVideoId("videoId");
 
         user.getVideos().add(video);
 
@@ -171,5 +171,27 @@ class UserControllerTest {
                 .andExpect(status().isOk());
 
         then(service).should().deleteUserById(anyLong());
+    }
+
+    @Test
+    @DisplayName("DELETE /{id}/video/{videoId} endpoint status should be 200")
+    void removeVideoFromUserVideoList() throws Exception {
+
+        mockMvc.perform(delete("/users/1/video/videoId")
+            .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk());
+
+        then(service).should().removeVideoFromUserVideoList(anyLong(), anyString());
+    }
+
+    @Test
+    @DisplayName("DELETE /{id}/video/{videoId} endpoint status should be 200")
+    void removeVideoFromUserVideoList_ResourceNotFoundExceptionTest() throws Exception {
+        doThrow(ResourceNotFoundException.class).when(service)
+                .removeVideoFromUserVideoList(anyLong(), anyString());
+
+        mockMvc.perform(delete("/users/1/video/videoId")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 }

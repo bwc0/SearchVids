@@ -30,9 +30,11 @@ class UserServiceImplementationTest {
     private static final String EMAIL = "test@email.com";
     private static final String PASSWORD = "testpassword";
     private static final Long VIDEO_ID = 1L;
+    private static final String VIDEOID = "video id";
 
     private User user;
     private UserService service;
+    private Video video;
 
     @Mock
     private UserRepository userRepository;
@@ -56,8 +58,9 @@ class UserServiceImplementationTest {
         user.setEmail(EMAIL);
         user.setPassword(PASSWORD);
 
-        Video video = new Video();
+        video = new Video();
         video.setId(VIDEO_ID);
+
 
         user.getVideos().add(video);
 
@@ -160,14 +163,14 @@ class UserServiceImplementationTest {
     @Test
     @DisplayName("Add existing video to User Video List Test")
     void addVideoToUserVideoListTest() {
-        Video video = new Video();
-        video.setId(2L);
-        video.setVideoId("mnjokmojn");
+        Video video2 = new Video();
+        video2.setId(2L);
+        video2.setVideoId("mnjokmojn");
 
         given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
-        given(videoRepository.findByVideoId(anyString())).willReturn(Optional.of(video));
+        given(videoRepository.findByVideoId(anyString())).willReturn(Optional.of(video2));
 
-        service.addVideoToUserVideoList(1L, video);
+        service.addVideoToUserVideoList(1L, video2);
 
         then(userRepository).should().findById(anyLong());
         then(videoRepository).should(never()).save(any());
@@ -177,10 +180,7 @@ class UserServiceImplementationTest {
 
     @Test
     @DisplayName("User not found exception video not added to list test")
-    void userNotFoundExceptionTest() {
-        Video video = new Video();
-        video.setId(2L);
-
+    void userNotFoundException_VideoNotAddedToListTest() {
         given(userRepository.findById(anyLong())).willReturn(Optional.empty());
 
         Throwable ex = assertThrows(ResourceNotFoundException.class, () -> service.addVideoToUserVideoList(1L, video));
@@ -194,4 +194,46 @@ class UserServiceImplementationTest {
         service.deleteUserById(1L);
         then(userRepository).should().deleteById(anyLong());
     }
+
+    @Test
+    @DisplayName("User found video removed from list test")
+    void removeVideoFromUserVideoListTest() {
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
+        given(videoRepository.findByVideoId(anyString())).willReturn(Optional.of(video));
+
+        service.removeVideoFromUserVideoList(1L, VIDEOID);
+
+        then(userRepository).should().findById(anyLong());
+        then(videoRepository).should().findByVideoId(anyString());
+        then(userRepository).should().save(any());
+        assertEquals(0, user.getVideos().size());
+    }
+
+    @Test
+    @DisplayName("User not found exception video not removed from list test")
+    void removeVideoFromUserVideo_UserNotFoundExceptionListTest() {
+        given(userRepository.findById(anyLong())).willReturn(Optional.empty());
+
+        Throwable ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.removeVideoFromUserVideoList(1L, video.getVideoId()));
+
+        then(userRepository).should(never()).save(any());
+        then(videoRepository).should(never()).findByVideoId(anyString());
+        assertEquals("User not found with id: '1'", ex.getMessage());
+    }
+
+    @Test
+    @DisplayName("User not found exception video not removed from list test")
+    void removeVideoFromUserVideo_VideoNotFoundExceptionListTest() {
+        video.setVideoId(VIDEOID);
+        given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
+        given(videoRepository.findByVideoId(anyString())).willReturn(Optional.empty());
+
+        Throwable ex = assertThrows(ResourceNotFoundException.class,
+                () -> service.removeVideoFromUserVideoList(1L, video.getVideoId()));
+
+        then(userRepository).should(never()).save(any());
+        assertEquals("Video not found with videoid: 'video id'", ex.getMessage());
+    }
+
 }

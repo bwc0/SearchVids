@@ -31,7 +31,6 @@ public class UserController {
         return ResponseEntity.ok(service.updateUser(id, user));
     }
 
-
     @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public void postVideoToUserVideoList(@PathVariable Long id, @RequestBody Video video) {
@@ -42,5 +41,11 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public void deleteUser(@PathVariable Long id) {
         service.deleteUserById(id);
+    }
+
+    @DeleteMapping("/{id}/video/{videoId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void removeVideoFromUserVideoList(@PathVariable Long id, @PathVariable String videoId) {
+        service.removeVideoFromUserVideoList(id, videoId);
     }
 }
