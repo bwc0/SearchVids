@@ -101,13 +101,13 @@ class AuthControllerTest {
     @DisplayName("POST /signup endpoint test should return 400 and JWTResponse")
     void registerUser_UsernameExists_ShouldReturn400_AndJwtResponse() throws Exception {
         given(authService.registration(any(SignUpForm.class)))
-                .willReturn(new ResponseMessage("Fail -> Username already taken", HttpStatus.BAD_REQUEST.getReasonPhrase()));
+                .willReturn(new ResponseMessage("Username already taken", HttpStatus.BAD_REQUEST.getReasonPhrase()));
 
         mockMvc.perform(post(AUTH_API + "/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(signUpForm)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message", equalTo("Fail -> Username already taken")))
+                .andExpect(jsonPath("$.message", equalTo("Username already taken")))
                 .andExpect(jsonPath("$.status", equalTo("Bad Request")));
 
     }
@@ -116,13 +116,13 @@ class AuthControllerTest {
     @DisplayName("POST /signup endpoint test should return 400 and JWTResponse")
     void registerUser_EmailExists_ShouldReturn400_AndJwtResponse() throws Exception {
         given(authService.registration(any(SignUpForm.class)))
-                .willReturn(new ResponseMessage("Fail -> Email already taken", HttpStatus.BAD_REQUEST.getReasonPhrase()));
+                .willReturn(new ResponseMessage("Email already taken", HttpStatus.BAD_REQUEST.getReasonPhrase()));
 
         mockMvc.perform(post(AUTH_API + "/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(new ObjectMapper().writeValueAsString(signUpForm)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message", equalTo("Fail -> Email already taken")))
+                .andExpect(jsonPath("$.message", equalTo("Email already taken")))
                 .andExpect(jsonPath("$.status", equalTo("Bad Request")));
     }
 }
