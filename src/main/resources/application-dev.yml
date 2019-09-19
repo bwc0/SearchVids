@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/searchvidsdev?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/searchvidsdevdb?useSSL=false&serverTimezone=UTC
     username: root
     password: rootpassword
     platform: mysql
@@ -10,6 +10,12 @@ spring:
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     database: mysql
     show-sql: false
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB
 
 jwt:
   jwtSecret: clientDevSecret

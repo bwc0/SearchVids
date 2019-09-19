@@ -1,6 +1,5 @@
 package com.searchvids.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.NaturalId;
 
 import javax.persistence.*;
@@ -37,8 +36,8 @@ public class User {
     @Size(min = 6, max = 100)
     private String password;
 
-    @Lob
-    private Byte[] image;
+    @Embedded
+    private Image imageDetails;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
@@ -60,16 +59,6 @@ public class User {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.roles = roles;
-        this.videos = videos;
-    }
-
-    public User(String username, String email, String password,
-                Byte[] image, Set<Role> roles, Set<Video> videos) {
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.image = image;
         this.roles = roles;
         this.videos = videos;
     }
@@ -98,12 +87,12 @@ public class User {
         this.email = email;
     }
 
-    public Byte[] getImage() {
-        return image;
+    public Image getImageDetails() {
+        return imageDetails;
     }
 
-    public void setImage(Byte[] image) {
-        this.image = image;
+    public void setImageDetails(Image imageDetails) {
+        this.imageDetails = imageDetails;
     }
 
     public String getPassword() {

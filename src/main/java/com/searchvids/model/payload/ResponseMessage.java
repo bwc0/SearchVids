@@ -12,6 +12,8 @@ public class ResponseMessage {
     private String status;
     private User user;
 
+    public ResponseMessage() {}
+
     public ResponseMessage(String message, String status, User user) {
         this.message = message;
         this.status = status;

@@ -22,6 +22,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.Arrays.asList;
+
 @Component
 @Profile({"dev", "default"})
 public class BootstrapData implements ApplicationListener<ContextRefreshedEvent> {
@@ -44,12 +46,13 @@ public class BootstrapData implements ApplicationListener<ContextRefreshedEvent>
         if (userRepository.count() >= 2) {
             LOGGER.info("Data already loaded");
         } else {
-            LOGGER.info("Data is being loaded");
             loadUsers();
+            LOGGER.info("Data is being loaded");
+
         }
     }
 
-    private void loadUsers() {
+    public List<User> loadUsers() {
         // Save roles
         Role role = new Role();
         role.setName(RoleName.ROLE_USER);
@@ -64,9 +67,6 @@ public class BootstrapData implements ApplicationListener<ContextRefreshedEvent>
         User user2 = new User("username2", "test2@test.com",
                 encoder.encode("password"), roles, new HashSet<>());
 
-        List users = Arrays.asList(user, user2);
-
-        userRepository.saveAll(users);
-
+        return userRepository.saveAll(asList(user, user2));
     }
 }

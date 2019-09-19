@@ -23,7 +23,6 @@ import java.util.HashSet;
 import static com.searchvids.controller.AuthController.AUTH_API;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -42,6 +41,7 @@ class AuthControllerTest {
     private SignUpForm signUpForm;
     private MockMvc mockMvc;
     private AuthController authController;
+    private ResponseMessage responseMessage;
 
     @Mock
     private AuthService authService;
@@ -60,6 +60,8 @@ class AuthControllerTest {
         signUpForm.setEmail(EMAIL);
         signUpForm.setUsername(USERNAME);
         signUpForm.setPassword(PASSWORD);
+
+        responseMessage = new ResponseMessage();
 
         mockMvc = MockMvcBuilders.standaloneSetup(authController)
                 .build();
@@ -100,6 +102,10 @@ class AuthControllerTest {
     @Test
     @DisplayName("POST /signup endpoint test should return 400 and JWTResponse")
     void registerUser_UsernameExists_ShouldReturn400_AndJwtResponse() throws Exception {
+
+        responseMessage.setMessage("Username already taken");
+        responseMessage.setStatus(HttpStatus.BAD_REQUEST.getReasonPhrase());
+
         given(authService.registration(any(SignUpForm.class)))
                 .willReturn(new ResponseMessage("Username already taken", HttpStatus.BAD_REQUEST.getReasonPhrase()));
 

@@ -23,11 +23,6 @@ public class Role {
         this.name = name;
     }
 
-    public Role(Long id, RoleName name) {
-        this.id = id;
-        this.name = name;
-    }
-
     public RoleName getName() {
         return name;
     }

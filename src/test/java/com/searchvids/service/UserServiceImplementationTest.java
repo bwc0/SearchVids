@@ -43,9 +43,6 @@ class UserServiceImplementationTest {
     private VideoRepository videoRepository;
 
     @Mock
-    private AuthService authService;
-
-    @Mock
     private PasswordEncoder passwordEncoder;
 
     @BeforeEach
@@ -132,8 +129,8 @@ class UserServiceImplementationTest {
     }
 
     @Test
-    @DisplayName("User not found by username exception test")
-    void updateUserNotFoundByUsernameExceptionTest() {
+    @DisplayName("User not found by id exception test")
+    void updateUserNotFoundByIdExceptionTest() {
         given(userRepository.findById(anyLong())).willReturn(Optional.empty());
 
         Throwable ex = assertThrows(ResourceNotFoundException.class, () -> service.updateUser(1L, user));

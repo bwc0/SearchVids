@@ -67,7 +67,7 @@ class UserControllerTest {
         user.getVideos().add(video);
 
         message1 = new ResponseMessage("User found with id: " + user.getId(), HttpStatus.OK.getReasonPhrase(), user);
-        message2 = new ResponseMessage("User updated with id: " + user.getId(), HttpStatus.OK.getReasonPhrase(), user);
+        message2 = new ResponseMessage();
         message3 = new ResponseMessage("Username must be unique", HttpStatus.BAD_REQUEST.getReasonPhrase());
 
         mockMvc = MockMvcBuilders.standaloneSetup(controller)
@@ -103,6 +103,11 @@ class UserControllerTest {
     @Test
     @DisplayName("PATCH /{id} endpoint status should 200 and return User")
     void putUpdateUser_ShouldReturnUrlAnd200Test() throws Exception {
+
+        message2.setMessage("User updated with id: " + user.getId());
+        message2.setStatus(HttpStatus.OK.getReasonPhrase());
+        message2.setUser(user);
+
         given(service.updateUser(anyLong(), any())).willReturn(message2);
 
         mockMvc.perform(patch("/users/1")
