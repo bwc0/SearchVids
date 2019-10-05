@@ -102,7 +102,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("PATCH /{id} endpoint status should 200 and return User")
-    void putUpdateUser_ShouldReturnUrlAnd200Test() throws Exception {
+    void patchUpdateUser_ShouldReturnUrlAnd200Test() throws Exception {
 
         message2.setMessage("User updated with id: " + user.getId());
         message2.setStatus(HttpStatus.OK.getReasonPhrase());
@@ -123,7 +123,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("PATCH /{id} endpoint username Exists should return 400")
-    void putUpdateUser_UsernameExistsShouldReturn400Test() throws Exception {
+    void patchUpdateUser_UsernameExistsShouldReturn400Test() throws Exception {
         given(service.updateUser(anyLong(), any())).willReturn(message3);
 
         mockMvc.perform(patch("/users/1")
@@ -136,7 +136,7 @@ class UserControllerTest {
 
     @Test
     @DisplayName("PATCH /{id} endpoint error message and 404")
-    void putUpdateUser_UserDoesNotExist_ShouldReturn404() throws Exception {
+    void patchUpdateUser_UserDoesNotExist_ShouldReturn404() throws Exception {
         given(service.updateUser(anyLong(), any())).willThrow(ResourceNotFoundException.class);
 
         mockMvc.perform(patch("/users/1")
@@ -148,12 +148,35 @@ class UserControllerTest {
     @Test
     @DisplayName("POST /{id} endpoint status should be 200")
     void postVideoToUserVideoList_StatusShouldBe200Test() throws Exception {
+        Video video2 = new Video();
+
+        video2.setChannelTitle("Channel Title");
+        video2.setDescription("Description of video");
+        video2.setPublishedAt("Timed Published");
+        video2.setThumbnail("Thumbnail of video");
+        video2.setTitle("Video Title");
+        video2.setVideoId("videoId22");
+        video2.setId(2L);
+
+        user.getVideos().add(video2);
+
+        message2.setMessage("Video added to favorites");
+        message2.setStatus(HttpStatus.OK.getReasonPhrase());
+        message2.setUser(user);
+
+        given(service.addVideoToUserVideoList(anyLong(), any())).willReturn(message2);
+
         mockMvc.perform(post("/users/1")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new ObjectMapper().writeValueAsString(video)))
+                .content(new ObjectMapper().writeValueAsString(video2)))
+                .andDo(print())
+                .andExpect(jsonPath("$.message", equalTo("Video added to favorites")))
+                .andExpect(jsonPath("$.status", equalTo(HttpStatus.OK.getReasonPhrase())))
+                .andExpect(jsonPath("$.user.videos", hasSize(2)))
                 .andExpect(status().isOk());
 
         then(service).should().addVideoToUserVideoList(anyLong(), any());
+
     }
 
     @Test
@@ -182,9 +205,16 @@ class UserControllerTest {
     @DisplayName("DELETE /{id}/video/{videoId} endpoint status should be 200")
     void removeVideoFromUserVideoList() throws Exception {
 
+        message2.setMessage("Video removed from favorites");
+        message2.setStatus(HttpStatus.OK.getReasonPhrase());
+
+        given(service.removeVideoFromUserVideoList(anyLong(), anyString())).willReturn(message2);
+
         mockMvc.perform(delete("/users/1/video/videoId")
             .contentType(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.message", equalTo("Video removed from favorites")))
+            .andExpect(jsonPath("$.status", equalTo(HttpStatus.OK.getReasonPhrase())));
 
         then(service).should().removeVideoFromUserVideoList(anyLong(), anyString());
     }

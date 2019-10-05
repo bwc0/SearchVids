@@ -33,8 +33,8 @@ public class UserController {
 
     @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public void postVideoToUserVideoList(@PathVariable Long id, @RequestBody Video video) {
-        service.addVideoToUserVideoList(id, video);
+    public ResponseEntity<ResponseMessage> postVideoToUserVideoList(@PathVariable Long id, @RequestBody Video video) {
+        return ResponseEntity.ok(service.addVideoToUserVideoList(id, video));
     }
 
     @DeleteMapping("/{id}")
@@ -45,7 +45,7 @@ public class UserController {
 
     @DeleteMapping("/{id}/video/{videoId}")
     @ResponseStatus(HttpStatus.OK)
-    public void removeVideoFromUserVideoList(@PathVariable Long id, @PathVariable String videoId) {
-        service.removeVideoFromUserVideoList(id, videoId);
+    public ResponseEntity<ResponseMessage> removeVideoFromUserVideoList(@PathVariable Long id, @PathVariable String videoId) {
+        return ResponseEntity.ok(service.removeVideoFromUserVideoList(id, videoId));
     }
 }

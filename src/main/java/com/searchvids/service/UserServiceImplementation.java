@@ -55,7 +55,7 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    public void addVideoToUserVideoList(Long id, Video video) {
+    public ResponseMessage addVideoToUserVideoList(Long id, Video video) {
         User user = getUser(id);
 
         Optional<Video> videoOptional = videoRepository.findByVideoId(video.getVideoId());
@@ -68,16 +68,20 @@ public class UserServiceImplementation implements UserService {
         }
 
         userRepository.save(user);
+
+        return new ResponseMessage("Video added to favorites", HttpStatus.OK.getReasonPhrase(), user);
     }
 
     @Override
-    public void removeVideoFromUserVideoList(Long id, String videoId) {
+    public ResponseMessage removeVideoFromUserVideoList(Long id, String videoId) {
         User user = getUser(id);
 
         user.getVideos().remove(videoRepository.findByVideoId(videoId)
                 .orElseThrow(() -> new ResourceNotFoundException("Video", "videoid", videoId)));
 
         userRepository.save(user);
+
+        return new ResponseMessage("Video removed from favorites", HttpStatus.OK.getReasonPhrase());
     }
 
     @Override

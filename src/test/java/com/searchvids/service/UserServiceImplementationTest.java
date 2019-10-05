@@ -149,12 +149,16 @@ class UserServiceImplementationTest {
         given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
         given(videoRepository.findByVideoId(anyString())).willReturn(Optional.empty());
 
-        service.addVideoToUserVideoList(1L, video);
+        ResponseMessage message = service.addVideoToUserVideoList(1L, video);
 
         then(userRepository).should().findById(anyLong());
         then(videoRepository).should().save(any());
         then(userRepository).should().save(any());
-        assertEquals(2, user.getVideos().size());
+        assertAll(
+                () -> assertEquals("Video added to favorites", message.getMessage()),
+                () -> assertEquals(HttpStatus.OK.getReasonPhrase(), message.getStatus()),
+                () -> assertEquals(2, message.getUser().getVideos().size())
+        );
     }
 
     @Test
@@ -167,12 +171,16 @@ class UserServiceImplementationTest {
         given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
         given(videoRepository.findByVideoId(anyString())).willReturn(Optional.of(video2));
 
-        service.addVideoToUserVideoList(1L, video2);
+        ResponseMessage message = service.addVideoToUserVideoList(1L, video2);
 
         then(userRepository).should().findById(anyLong());
         then(videoRepository).should(never()).save(any());
         then(userRepository).should().save(any());
-        assertEquals(2, user.getVideos().size());
+        assertAll(
+                () -> assertEquals("Video added to favorites", message.getMessage()),
+                () -> assertEquals(HttpStatus.OK.getReasonPhrase(), message.getStatus()),
+                () -> assertEquals(2, message.getUser().getVideos().size())
+        );
     }
 
     @Test
@@ -198,12 +206,16 @@ class UserServiceImplementationTest {
         given(userRepository.findById(anyLong())).willReturn(Optional.of(user));
         given(videoRepository.findByVideoId(anyString())).willReturn(Optional.of(video));
 
-        service.removeVideoFromUserVideoList(1L, VIDEOID);
+        ResponseMessage message = service.removeVideoFromUserVideoList(1L, VIDEOID);
 
         then(userRepository).should().findById(anyLong());
         then(videoRepository).should().findByVideoId(anyString());
         then(userRepository).should().save(any());
-        assertEquals(0, user.getVideos().size());
+
+        assertAll(
+                () -> assertEquals("Video removed from favorites", message.getMessage()),
+                () -> assertEquals(HttpStatus.OK.getReasonPhrase(), message.getStatus())
+        );
     }
 
     @Test
