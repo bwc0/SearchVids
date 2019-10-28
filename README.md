@@ -17,7 +17,8 @@ To Run (with maven):
 
 `mvn spring-boot:run`
 
-Build executable jar:
+To Run (Build executable jar):
+
 
 Repeat steps 1 & 2
 
