@@ -6,7 +6,7 @@ Trello Board:
 To Run (with maven):
 
 1. Clone Repo
- `git@github.com:bwc0/SearchVids.git`
+`git@github.com:bwc0/SearchVids.git`
 
 2. go into project
 
